@@ -1,16 +1,13 @@
 use_module(library(apply)).
 use_module(library(random)).
-use_module(library(tabling)).
-%listing(subset).
-
-table winner/3.
-table score/3.
-table is_tie/1.
+use_module(library(tabling), [table/1]).
 
 players(x).
+
 players(o).
 
 other_player(x, o).
+
 other_player(o, x).
 
 valid_position(P) :- P >= 0, 2 >= P, !.
@@ -189,9 +186,9 @@ take_turn(State, CurrentPlayer, NextState) :-
 
 take_turn(State, CurrentPlayer, NextState) :-
     CurrentPlayer = x,
-    format("Enter row for player ~a", [CurrentPlayer]),
-	read(Row),
-    format("Enter col for player ~a", [CurrentPlayer]),
+    format("Enter row for player ~a: ", [CurrentPlayer]),
+	  read(Row),
+    format("Enter col for player ~a: ", [CurrentPlayer]),
     read(Col),
     valid_position(Row),
     valid_position(Col),
@@ -232,18 +229,25 @@ get_or_modify(State, Row, DesiredChangeRow, Col, Player, RowOut) :-
     nth0(1, RowStateOut, C1),
     RowOut = [C0, C1, Player].
 
+die(X) :- write("Program has finished"), nl, die_(X).
+
+die_(X) :- die_(X).
+
 take_turns(State, _) :-
     winner(_, State),
     print_state(State).
 
 take_turns(State, _) :-
     winner(P, State),
-    format("Player ~a won!", [P]).
-    %halt.
+    format("Player ~a won!", [P]),
+    nl,
+    die(_).
 
 take_turns(State, _) :-
     is_tie(State),
-    format("Both players tied!").
+    format("Both players tied!"),
+    nl,
+    die(_).
 
 take_turns(State, Player) :-
   Player = x,
@@ -255,7 +259,10 @@ take_turns(State, Player) :-
     take_turn(State, Player, NextState),
     take_turns(NextState, x).
 
-% :- initialization(main).
 main :-
     start_state(State),
     take_turns(State, x).
+
+table(winner/3).
+table(score/3).
+table(is_tie/1).
